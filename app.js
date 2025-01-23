@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const axios = require("axios"); // Add axios for making HTTP requests
 const app = express();
 
 // Enable CORS for all origins (Adjust in production)
@@ -14,22 +15,30 @@ app.use(
 // Middleware to parse JSON (if needed)
 app.use(express.json());
 
-// Route to test query parameters
-app.get("/test", (req, res) => {
-  const queryParams = req.query; // Extract query parameters
-  res.json({
-    message: "Query parameters received",
-    queryParams,
-  });
+// Route to redirect to the server on port 8000
+app.get("/redirect", async (req, res) => {
+  try {
+    // Make a request to the server on port 8000
+    const response = await axios.get(
+      `http://localhost:8000/test?code=234982345234`
+    );
+
+    // Return the response from the port 8000 server
+    res.json({
+      message: "Response from port 8000",
+      data: response.data,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error redirecting to port 8000",
+      error: error.message,
+    });
+  }
 });
 
-// Catch OPTIONS preflight requests
-app.options("/test", (req, res) => {
-  res.sendStatus(204); // No content for preflight response
-});
-
-// Start the server
-const PORT = 8000;
+// Start the server on port 3000
+const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
